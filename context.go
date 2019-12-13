@@ -4,6 +4,7 @@ import (
 	//"net"
 	"math"
 	"net/http"
+	"render"
 	"sync"
 )
 
@@ -87,9 +88,23 @@ func (c *Context) Param(name string) interface{} {
 /******************/
 /*** 响应渲染相关 ***/
 /******************/
-// 输出json格式
-func (c *Context) Json() {
 
+// 渲染函数
+func (c *Context) render(code int, r render.IRender) {
+	if !bodyAllowedCode(code) {
+		r.render.WritecontentType(c.Response.Writer)
+		c.Response.WriteHeaderNow()
+		return nil
+	}
+	err := r.render.Render(c.Response.Writer)
+	if err != nil {
+		panic(err)
+	}
+}
+
+// 输出json格式
+func (c *Context) Json(code int, obj interface{}) {
+	c.render(code, render.Json{data: boj})
 }
 
 // 输出字符串格式

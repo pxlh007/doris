@@ -24,20 +24,20 @@ import (
 type (
 	// doris结构
 	Doris struct {
-		RouteGroup                        // 组合继承组结构和方法
-		maxParam         *int             // 路由中的最大参数数
-		trees            trees            // Method路由树
-		pool             sync.Pool        // 用于复用context上下文等对象
-		beforeHandlers   HandlersChain    // 全局前向中间件调用链
-		afterHandlers    HandlersChain    // 全局后向中间件调用链
-		HTTPErrorHandler HTTPErrorHandler // http错误处理函数
-		//Logger           Logger                 // 全局日志记录器
-		Config      map[string]interface{} // 全局用户配置器
-		Debug       bool                   // 是否处于调试模式
-		autoSlash   bool                   // 是否自动在路径的结尾添加'/'
-		noRoute     HandlersChain          // 不存在路由处理链
-		noMethod    HandlersChain          // 不存在方法处理链
-		allowMethod []string               // 允许的HTTP方法列表
+		RouteGroup                              // 组合继承组结构和方法
+		maxParam         *int                   // 路由中的最大参数数
+		trees            trees                  // Method路由树
+		pool             sync.Pool              // 用于复用context上下文等对象
+		HTTPErrorHandler HTTPErrorHandler       // http错误处理函数
+		Config           map[string]interface{} // 全局用户配置器
+		Debug            bool                   // 是否处于调试模式
+		autoSlash        bool                   // 是否自动在路径的结尾添加'/'
+		noRoute          HandlersChain          // 不存在路由处理链
+		noMethod         HandlersChain          // 不存在方法处理链
+		allowMethod      []string               // 允许的HTTP方法列表
+		// Logger           Logger               // 全局日志记录器
+		// beforeHandlers   HandlersChain       // 全局前向中间件调用链
+		// afterHandlers    HandlersChain       // 全局后向中间件调用链
 	}
 	// 请求过程中出现的错误提示
 	HTTPError struct {
