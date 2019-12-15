@@ -58,15 +58,17 @@ func (w *Response) reset(writer http.ResponseWriter) {
 	w.status = defaultStatus
 }
 
+// 将code值写入w中后面调用WriteHeaderNow再发送
 func (w *Response) WriteHeader(code int) {
 	if code > 0 && w.status != code {
 		if w.Written() {
-			//debugPrint("[WARNING] Headers were already written. Wanted to override status code %d with %d", w.status, code)
+			// debugPrint("[WARNING] Headers were already written. Wanted to override status code %d with %d", w.status, code)
 		}
 		w.status = code
 	}
 }
 
+// 本接口暂时用不上
 func (w *Response) WriteHeaderNow() {
 	if !w.Written() {
 		w.size = 0
@@ -127,5 +129,6 @@ func (w *Response) Pusher() (pusher http.Pusher) {
 }
 
 func (w *Response) Header() http.Header {
+	debugPrintMessage("reponse: Header方法", "__print__", true)
 	return nil
 }

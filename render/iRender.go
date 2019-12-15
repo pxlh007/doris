@@ -1,6 +1,7 @@
 package render
 
 import (
+	// "fmt"
 	"net/http"
 )
 
@@ -8,12 +9,16 @@ type IRender interface {
 	// 渲染接口
 	Render(http.ResponseWriter) error
 	// 写类型头接口
-	WritecontentType(http.ResponseWriter)
+	WriteContentType(http.ResponseWriter)
 }
 
 // 声明接口的实现对象
 var (
 	_ IRender = Json{}
+	_ IRender = Jsonp{}
+	_ IRender = IndentedJson{}
+	_ IRender = PureJson{}
+	_ IRender = AsciiJson{}
 	// _ IRender = xml{}
 	// _ IRender = ProtoBuf{}
 	// _ IRender = Text{}

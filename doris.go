@@ -50,6 +50,8 @@ type (
 	HandlersChain []HandlerFunc
 	// 集中式http错误处理器
 	HTTPErrorHandler func(error, Context)
+	// map[string]interface{}的简短定义
+	D map[string]interface{}
 )
 
 // 定义方法列表
@@ -94,7 +96,8 @@ func defaultNoMethod(c *Context) error {
 
 // 分配一个新的上下文实例
 func (doris *Doris) allocateContext() *Context {
-	return &Context{doris: doris}
+	response := new(Response)
+	return &Context{doris: doris, Response: response}
 }
 
 // Pre添加前中间件
@@ -175,15 +178,12 @@ func (doris *Doris) handleHTTPRequest(c *Context) {
 	// 判断是否允许
 	if !InSlice(httpMethod, doris.allowMethod) {
 		c.handlers = doris.noMethod
-		c.index = -1                // 默认设置为-1
-		c.Next()                    // 执行函数处理链
-		c.Response.WriteHeaderNow() // 返回响应的结果
+		c.index = -1 // 默认设置为-1
+		c.Next()     // 执行函数处理链
 		return
 	}
 	rPath := c.Request.URL.Path
-
 	debugPrintMessage("rPath", rPath, doris.Debug)
-
 	// 查找method树
 	if tree, ok := doris.trees[httpMethod]; ok {
 		// 方法树存在
@@ -192,17 +192,15 @@ func (doris *Doris) handleHTTPRequest(c *Context) {
 			c.handlers = nodev.handlers
 			c.params = SliceToMap(nodev.params, nodev.pvalues)
 			c.fullPath = nodev.fullPath
-			c.index = -1                // 默认设置为-1
-			c.Next()                    // 执行函数处理链
-			c.Response.WriteHeaderNow() // 返回响应的结果
+			c.index = -1 // 默认设置为-1
+			c.Next()     // 执行函数处理链
 			return
 		}
 	}
 	// 方法树不存在
 	c.handlers = doris.noRoute
-	c.index = -1                // 默认设置为-1
-	c.Next()                    // 执行函数处理链
-	c.Response.WriteHeaderNow() // 返回响应的结果
+	c.index = -1 // 默认设置为-1
+	c.Next()     // 执行函数处理链
 	return
 }
 
@@ -224,8 +222,8 @@ func (doris *Doris) validMethod(method string) bool {
 }
 
 // 处理错误
-func serveError(c *Context, code int32, defaultMessage string) error {
-	fmt.Print(code, defaultMessage)
+func serveError(c *Context, code int, defaultMessage string) error {
+	c.Json(code, D{"code": code, "message": defaultMessage})
 	return nil
 }
 
