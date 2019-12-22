@@ -2,7 +2,9 @@
 package binding
 
 import (
+	// "fmt"
 	"net/http"
+	"reflect"
 )
 
 // 定义结构体
@@ -14,9 +16,9 @@ func (q QueryBind) Name() string {
 }
 
 // 实现bind接口
-func (q QueryBind) Bind(r http.Request, obj interface{}) error {
+func (q QueryBind) Bind(r *http.Request, obj interface{}) error {
 	// 绑定url查询参数
 	values := r.URL.Query()
-	err := mapping(values, obj, q.Name())
-	return err
+	val := reflect.ValueOf(obj)
+	return mapping(values, val, q.Name())
 }

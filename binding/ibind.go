@@ -59,19 +59,12 @@ var (
 )
 
 // 公共映射方法
-func mapping(values url.Values, obj interface{}, typ string) error {
-	// 根据不同的类型执行映射
-	if typ == "form" {
-		// form映射
-
-	} else if typ == "query" {
-		// url映射
-		val := reflect.ValueOf(obj)
+func mapping(values url.Values, val reflect.Value, bType string) error {
+	// 根据不同类型执行映射
+	if bType == "query" || bType == "form" { // url/form 映射
 		typ := val.Type() // 获取对象类型
-		if typ.Kind() == reflect.Ptr {
-			// kind为指针
-			// 空指针直接返回
-			if val.IsNil() {
+		if val.Kind() == reflect.Ptr {
+			if val.IsNil() { // 空指针
 				return ErrStruct
 			}
 
@@ -79,17 +72,22 @@ func mapping(values url.Values, obj interface{}, typ string) error {
 			val = val.Elem()
 
 			// 递归映射
-			_ = mapping(values, val, "query")
+			return mapping(values, val, bType)
 
-		} else if typ.Kind() != reflect.Struct {
-			// 非结构体直接返回
+		} else if val.Kind() != reflect.Struct { // 非结构体
 			return ErrStruct
 		}
+
 		// 循环结构体字段
-		for i := 0; i < val.NumField(); i++ {
+		for i := 0; i < typ.NumField(); i++ {
+			// 判断字段可导出
+			if !val.Field(i).CanInterface() {
+				continue
+			}
+
 			// 遍历所有的元素
-			fieldTyp := typ.Field(i)
-			param := fieldTyp.Tag.Get("param")
+			fieldT := typ.Field(i)
+			param := fieldT.Tag.Get("param")
 			if param == "" {
 				return errors.New("参数不能为空")
 			}
@@ -98,7 +96,7 @@ func mapping(values url.Values, obj interface{}, typ string) error {
 			data := values.Get(param)
 
 			// 获取验证规则
-			vRule := fieldTyp.Tag.Get("validate")
+			vRule := fieldT.Tag.Get("validate")
 
 			// 参数校验
 			vd := new(validate.Validater)
@@ -109,15 +107,20 @@ func mapping(values url.Values, obj interface{}, typ string) error {
 				}
 				return errors.New("验证失败")
 			}
-			return setValue(data, val)
+
+			// 设置结构体
+			err = setValue(data, val.Field(i))
+			if err != nil {
+				return err
+			}
 		}
-	} else if typ == "json" {
+	} else if bType == "json" {
 		// json映射
 
-	} else if typ == "file" {
+	} else if bType == "file" {
 		// file映射
 
-	} else if typ == "protobuf" {
+	} else if bType == "protobuf" {
 		// protobuf映射
 
 	} else {
@@ -164,6 +167,7 @@ func setValue(data string, val reflect.Value) (err error) {
 	}
 
 	return
+
 }
 
 // 优化反射性能

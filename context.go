@@ -1,6 +1,7 @@
 package doris
 
 import (
+	// "fmt"
 	"math"
 	"net/http"
 	"net/url"
@@ -61,37 +62,51 @@ func (c *Context) Next() {
 /******** 参数绑定/获取相关 ************/
 /************************************/
 // 获取GET方法获取的参数
-func (c *Context) Query(obj interface{}) {
+func (c *Context) Query(obj interface{}) error {
 	// 获取query参数
 	b := binding.QueryBind{}
-	b.Bind(c.Request, obj)
-}
-
-// 获取单个的查询参数
-func (c *Context) QueryParam(param string) {
-	// 获取query参数
-
-}
-
-// 获取GET方法获取的参数带默认值
-func (c *Context) DefaultQuery(param string) {
-	// 获取query参数
-
+	return b.Bind(c.Request, obj)
 }
 
 // 获取POST方法的参数
-func (c *Context) PostForm(param string) {
+func (c *Context) Form(param interface{}) error {
+	// 获取query参数
+	b := binding.FormBind{}
+	return b.Bind(c.Request, param)
+}
 
+// 获取单个的查询参数
+func (c *Context) QueryParam(param string) string {
+	// 获取query参数
+	var q url.Values = c.Request.URL.Query()
+	return q.Get(param)
+}
+
+// 获取GET方法获取的参数带默认值
+func (c *Context) DefaultQuery(param string, def string) string {
+	// 获取query参数不存在则返回默认值
+	var q url.Values = c.Request.URL.Query()
+	if q.Get(param) == "" {
+		return def
+	}
+	return q.Get(param)
 }
 
 // 获取单个的表单参数
-func (c *Context) PostFormParam(param string) {
-
+func (c *Context) FormParam(param string) string {
+	c.Request.ParseForm()
+	var f url.Values = c.Request.Form
+	return f.Get(param)
 }
 
 // 获取POST方法的参数带默认值
-func (c *Context) DefaultPostForm(param string) {
-
+func (c *Context) DefaultFormParm(param string, def string) string {
+	c.Request.ParseForm()
+	var f url.Values = c.Request.Form
+	if f.Get(param) == "" {
+		return def
+	}
+	return f.Get(param)
 }
 
 // 处理静态文件方法
