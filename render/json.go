@@ -1,8 +1,8 @@
 package render
 
 import (
-	// "fmt"
 	"bytes"
+	"fmt"
 	"html/template"
 	"net/http"
 
