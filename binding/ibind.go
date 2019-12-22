@@ -4,12 +4,12 @@
 package binding
 
 import (
+	"doris/validate"
 	"errors"
 	"net/http"
 	"net/url"
 	"reflect"
 	"strconv"
-	"validate"
 )
 
 type (
