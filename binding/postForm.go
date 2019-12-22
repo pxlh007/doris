@@ -3,7 +3,7 @@ package binding
 
 import (
 	"net/http"
-	"reflect"
+	// "reflect"
 )
 
 // 定义结构体
@@ -17,7 +17,8 @@ func (p postFormBind) Name() string {
 // 实现bind接口
 func (p postFormBind) Bind(r http.Request, obj interface{}) error {
 	// 绑定url查询参数
-	val := r.ParseForm()
-	err := mapping(val, obj, p.Name())
-	return err
+	// val := r.ParseForm()
+	// err := mapping(val, obj, p.Name())
+	// return err
+	return nil
 }

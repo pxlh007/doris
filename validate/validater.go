@@ -1,16 +1,16 @@
 package validate
 
-type validater struct{}
+type Validater struct{}
 
 // 定义验证接口
-type ivalidate interface {
+type IValidate interface {
 	Validate(string, string) (bool, error)
 }
 
 // 定义对应关系
-var _ ivalidate = validater{}
+var _ IValidate = &Validater{}
 
 // 实现验证接口
-func (v *validater) Validate(data string, vRule string) (bool, error) {
+func (v *Validater) Validate(data string, vRule string) (bool, error) {
 	return true, nil
 }

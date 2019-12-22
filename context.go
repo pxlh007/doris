@@ -7,6 +7,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/pxlh007/doris/binding"
 	"github.com/pxlh007/doris/render"
 )
 
@@ -25,7 +26,7 @@ type Context struct {
 	params    map[string]interface{} // 保存同一个context下的参数（key/value）
 	accepted  []string               // 保存被接受的内容协商类型
 	lock      sync.RWMutex           // 上下文锁
-	//errors   errorMsgs     // 保存同一个context下的所有中间件和主处理函数的错误信息
+	// errors   errorMsgs     // 保存同一个context下的所有中间件和主处理函数的错误信息
 }
 
 // 单个url参数包含key/value
@@ -57,10 +58,16 @@ func (c *Context) Next() {
 }
 
 /************************************/
-/******** 参数绑定相关 ****************/
+/******** 参数绑定/获取相关 ************/
 /************************************/
 // 获取GET方法获取的参数
-func (c *Context) Query(param string) {
+func (c *Context) Query(obj interface{}) {
+	// 获取query参数
+
+}
+
+// 获取单个的查询参数
+func (c *Context) QueryParam(param string) {
 	// 获取query参数
 
 }
@@ -73,6 +80,11 @@ func (c *Context) DefaultQuery(param string) {
 
 // 获取POST方法的参数
 func (c *Context) PostForm(param string) {
+
+}
+
+// 获取单个的表单参数
+func (c *Context) PostFormParam(param string) {
 
 }
 

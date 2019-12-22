@@ -72,7 +72,7 @@ func mapping(values url.Values, obj interface{}, typ string) error {
 			// kind为指针
 			// 空指针直接返回
 			if val.IsNil() {
-				return errors.New(ErrStruct)
+				return ErrStruct
 			}
 
 			// 取指针指向的元素
@@ -83,7 +83,7 @@ func mapping(values url.Values, obj interface{}, typ string) error {
 
 		} else if typ.Kind() != reflect.Struct {
 			// 非结构体直接返回
-			return errors.New(ErrStruct)
+			return ErrStruct
 		}
 		// 循环结构体字段
 		for i := 0; i < val.NumField(); i++ {
@@ -101,7 +101,8 @@ func mapping(values url.Values, obj interface{}, typ string) error {
 			vRule := fieldTyp.Tag.Get("validate")
 
 			// 参数校验
-			ok, err := validater.Validate(data, vRule)
+			vd := new(validate.Validater)
+			ok, err := vd.Validate(data, vRule)
 			if !ok {
 				if err != nil {
 					return err
@@ -123,12 +124,15 @@ func mapping(values url.Values, obj interface{}, typ string) error {
 		// 其他类型
 		return errors.New("不支持的类型")
 	}
+	return nil
 }
 
 // 实际执行映射的地方
 func setValue(data string, val reflect.Value) (err error) {
 	// 获取kind
 	kind := val.Kind()
+
+	// 根据不同的类调用设置函数
 	switch kind {
 	case reflect.Int64, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int:
 		var d int64
@@ -158,6 +162,8 @@ func setValue(data string, val reflect.Value) (err error) {
 		val.SetString(data)
 		return
 	}
+
+	return
 }
 
 // 优化反射性能

@@ -3,19 +3,18 @@ package binding
 
 import (
 	"net/http"
-	"reflect"
 )
 
 // 定义结构体
-type queryBind struct{}
+type QueryBind struct{}
 
 // 实现Name接口
-func (q queryBind) Name() string {
+func (q QueryBind) Name() string {
 	return "query"
 }
 
 // 实现bind接口
-func (q queryBind) Bind(r http.Request, obj interface{}) error {
+func (q QueryBind) Bind(r http.Request, obj interface{}) error {
 	// 绑定url查询参数
 	values := r.URL.Query()
 	err := mapping(values, obj, q.Name())
