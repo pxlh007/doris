@@ -63,7 +63,7 @@ func (c *Context) Next() {
 // 获取GET方法获取的参数
 func (c *Context) Query(obj interface{}) {
 	// 获取query参数
-
+	b := new(binding)
 }
 
 // 获取单个的查询参数
