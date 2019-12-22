@@ -1,7 +1,6 @@
 package doris
 
 import (
-	//"net"
 	"math"
 	"net/http"
 	"net/url"
@@ -41,6 +40,9 @@ type KeyValues []KeyValue
 // 定义最大的中间件数目默认64
 const abortIndex int8 = math.MaxInt8 / 2
 
+/************************************/
+/******** 中间件相关 ******************/
+/************************************/
 // 定义Context的Next方法
 func (c *Context) Next() {
 	// debug
@@ -54,6 +56,9 @@ func (c *Context) Next() {
 	}
 }
 
+/************************************/
+/******** 参数绑定相关 ****************/
+/************************************/
 // 获取GET方法获取的参数
 func (c *Context) Query(param string) {
 	// 获取query参数
@@ -87,9 +92,9 @@ func (c *Context) Param(name string) interface{} {
 	return c.params[name]
 }
 
-/******************/
-/*** 响应渲染相关 ***/
-/******************/
+/************************************/
+/******** 响应渲染相关 ****************/
+/************************************/
 // 渲染函数
 func (c *Context) render(code int, r render.IRender) {
 	r.WriteContentType(c.Response.Writer) // 设置contentType
@@ -125,13 +130,13 @@ func (c *Context) Jsonp(code int, callback string, obj interface{}) {
 }
 
 // 输出字符串格式
-func (c *Context) String() {
-
+func (c *Context) String(code int, format string, values ...interface{}) {
+	c.render(code, render.String{Format: format, Data: values})
 }
 
 // 输出xml格式
-func (c *Context) Xml() {
-
+func (c *Context) Xml(code int, obj interface{}) {
+	c.render(code, render.Xml{Data: obj})
 }
 
 // 输出html格式
@@ -158,6 +163,9 @@ func (c *Context) Status(code int) {
 	c.Response.Writer.WriteHeader(code)
 }
 
+/************************************/
+/***** 请求/响应头和cookie设置相关 *****/
+/************************************/
 // 设置任意响应头信息
 func (c *Context) SetResponseHeader(key, value string) {
 	// 传递为空自动清除
@@ -242,3 +250,7 @@ func (c *Context) Cookie(key string) (val string, err error) {
 	// 获取成功
 	return cookieVal.Value, nil
 }
+
+/************************************/
+/******** 内容协商相关 ****************/
+/************************************/
