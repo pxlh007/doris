@@ -5,6 +5,7 @@ import (
 	"math"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -83,11 +84,14 @@ func (c *Context) QueryParam(param string) string {
 }
 
 // 获取GET方法获取的参数带默认值
-func (c *Context) DefaultQuery(param string, def string) string {
+func (c *Context) DefaultQuery(param string, def interface{}) string {
 	// 获取query参数不存在则返回默认值
 	var q url.Values = c.Request.URL.Query()
 	if q.Get(param) == "" {
-		return def
+		if v, ok := def.(int); ok {
+			return strconv.Itoa(v)
+		}
+		return def.(string)
 	}
 	return q.Get(param)
 }
@@ -100,11 +104,14 @@ func (c *Context) FormParam(param string) string {
 }
 
 // 获取POST方法的参数带默认值
-func (c *Context) DefaultFormParm(param string, def string) string {
+func (c *Context) DefaultFormParm(param string, def interface{}) string {
 	c.Request.ParseForm()
 	var f url.Values = c.Request.Form
 	if f.Get(param) == "" {
-		return def
+		if v, ok := def.(int); ok {
+			return strconv.Itoa(v)
+		}
+		return def.(string)
 	}
 	return f.Get(param)
 }
@@ -188,6 +195,9 @@ func bodyAllowedCode(code int) bool {
 
 // 设置响应头状态码行
 func (c *Context) Status(code int) {
+	// 设置封装后的status
+	c.Response.status = code
+	// 写实际响应头status
 	c.Response.Writer.WriteHeader(code)
 }
 

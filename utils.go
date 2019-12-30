@@ -100,3 +100,12 @@ func IsNil(i interface{}) bool {
 	vi := reflect.ValueOf(i)
 	return vi.IsNil()
 }
+
+// 实现字符串截取功能 Unicode编码的情况
+// 普通的字符串可以直接使用切片截取
+// 参考：https://cloud.tencent.com/developer/ask/50599
+func SubString(str string, start int, end int) string {
+	rs := []rune(str)
+	// rs[开始索引:结束索引]
+	return string(rs[start:end])
+}

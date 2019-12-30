@@ -14,11 +14,12 @@ import (
 	//"path/filepath"
 	//"reflect"
 	//"runtime"
-	"strconv"
-	"sync"
 	//"time"
-	//"github.com/labstack/gommon/color"
-	//"github.com/labstack/gommon/log"
+	"strconv"
+	"strings"
+	"sync"
+
+	"github.com/pxlh007/logger"
 )
 
 type (
@@ -35,7 +36,8 @@ type (
 		noRoute          HandlersChain          // 不存在路由处理链
 		noMethod         HandlersChain          // 不存在方法处理链
 		allowMethod      []string               // 允许的HTTP方法列表
-		// Logger           Logger               // 全局日志记录器
+		Logger           *logger.Logger         // 全局日志记录器
+		ShowBanner       bool                   // 是否显示banner信息
 		// beforeHandlers   HandlersChain       // 全局前向中间件调用链
 		// afterHandlers    HandlersChain       // 全局后向中间件调用链
 	}
@@ -65,11 +67,30 @@ var httpMethods []string = []string{
 	"PATCH",
 }
 
+// 启动时打印框架版本和banner信息
+const (
+	// Version of Doris
+	Version = "v1.0.0"
+	website = "https://doris.com"
+	// http://patorjk.com/software/taag/#p=display&f=Small%20Slant&t=Doris
+	banner = `
+       __           _     
+  ____/ /___  _____(_)____
+ / __  / __ \/ ___/ / ___/
+/ /_/ / /_/ / /  / (__  ) 
+\__,_/\____/_/  /_/____/ %s
+High performance, High scalability Go web framework
+website: %s
+_________________________________Author: JonahLou__
+                                    
+`
+)
+
 // 实例化框架对象函数
 func New() *Doris {
 	doris := &Doris{
-		maxParam: new(int),
-		//Logger:      log.New("doris"),
+		maxParam:    new(int),
+		Logger:      logger.NewLogger(),
 		allowMethod: []string{"GET", "POST", "DELETE", "PUT", "OPTIONS", "HEAD"},
 	}
 	// 注册默认404和405函数
@@ -111,6 +132,9 @@ func (doris *Doris) Pre(handlers ...HandlerFunc) IRoutes {
 func (doris *Doris) Use(handlers ...HandlerFunc) IRoutes {
 	debugPrintMessage("handlers", handlers, doris.Debug)
 	debugPrintMessage("调试信息", "__debug__", doris.Debug)
+	// 给错误处理器添加中间件
+	doris.noRoute = append(doris.noRoute, handlers...)
+	doris.noMethod = append(doris.noMethod, handlers...)
 	// 追加处理器到handlers尾部
 	return doris.RouteGroup.Use(handlers...)
 }
@@ -159,6 +183,19 @@ func (doris *Doris) addRoute(method, path string, handlers HandlersChain) {
 // 运行框架程序绑定端口
 func (doris *Doris) Run(addr ...string) (err error) {
 	address := ResolveAddress(addr)
+	// 判断是否展示banner
+	if doris.ShowBanner {
+		// 显示banner信息
+		fmt.Printf(banner, Version, website)
+	}
+
+	// 存在多监听的时候只取第一个
+	pi := strings.Index(addr[0], ":")
+	port := addr[0][pi+1:]
+
+	// 打印引导信息
+	fmt.Printf("⇨ http server started on \033[0;32m[::]:%s\033[0m \n\n", port)
+	// doris.Logger.Info("=> 请访问下面的地址完成请求: ::8080")
 	err = http.ListenAndServe(address, doris)
 	return
 }
