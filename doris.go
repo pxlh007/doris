@@ -71,7 +71,7 @@ var httpMethods []string = []string{
 const (
 	// Version of Doris
 	Version = "v1.0.0"
-	website = "https://doris.com"
+	website = "https://www.doris.com"
 	// http://patorjk.com/software/taag/#p=display&f=Small%20Slant&t=Doris
 	banner = `
        __           _     
@@ -183,6 +183,7 @@ func (doris *Doris) addRoute(method, path string, handlers HandlersChain) {
 // 运行框架程序绑定端口
 func (doris *Doris) Run(addr ...string) (err error) {
 	address := ResolveAddress(addr)
+
 	// 判断是否展示banner
 	if doris.ShowBanner {
 		// 显示banner信息
@@ -195,8 +196,8 @@ func (doris *Doris) Run(addr ...string) (err error) {
 
 	// 打印引导信息
 	fmt.Printf("⇨ http server started on \033[0;32m[::]:%s\033[0m \n\n", port)
-	// doris.Logger.Info("=> 请访问下面的地址完成请求: ::8080")
 	err = http.ListenAndServe(address, doris)
+
 	return
 }
 
