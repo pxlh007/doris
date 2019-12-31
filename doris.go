@@ -118,7 +118,7 @@ func defaultNoMethod(c *Context) error {
 // 分配一个新的上下文实例
 func (doris *Doris) allocateContext() *Context {
 	response := new(Response)
-	return &Context{doris: doris, Response: response}
+	return &Context{Doris: doris, Response: response}
 }
 
 // Pre添加前中间件

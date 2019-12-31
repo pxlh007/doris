@@ -24,7 +24,7 @@ type Context struct {
 	urlParams KeyValues              // 保存单个url的键值对参数
 	index     int8                   // 执行的中间件索引
 	fullPath  string                 // 全路径
-	doris     *Doris                 // 框架对象
+	Doris     *Doris                 // 框架对象
 	params    map[string]interface{} // 保存同一个context下的参数（key/value）
 	accepted  []string               // 保存被接受的内容协商类型
 	lock      sync.RWMutex           // 上下文锁
@@ -41,6 +41,7 @@ type KeyValue struct {
 type KeyValues []KeyValue
 
 // 定义最大的中间件数目默认64
+// 当出现异常时直接退出处理链
 const abortIndex int8 = math.MaxInt8 / 2
 
 /************************************/
@@ -49,7 +50,7 @@ const abortIndex int8 = math.MaxInt8 / 2
 // 定义Context的Next方法
 func (c *Context) Next() {
 	// debug
-	debugPrintMessage("c.handlers", c.handlers, c.doris.Debug)
+	debugPrintMessage("c.handlers", c.handlers, c.Doris.Debug)
 	// 通过Next启动处理链
 	c.index++
 	// 循环逐个执行注册的方法
@@ -57,6 +58,11 @@ func (c *Context) Next() {
 		c.handlers[c.index](c)
 		c.index++
 	}
+}
+
+// 终止处理链
+func (c *Context) Abort() {
+	c.index = abortIndex
 }
 
 /************************************/
